@@ -1,4 +1,18 @@
-# Human-in-the-Loop Agent Control Plane
+<p align="center">
+  <img src="assets/readme-banner.svg" alt="Human-in-the-Loop Agent Control Plane" width="100%">
+</p>
+
+<p align="center">
+  <img alt="python" src="https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white">
+  <img alt="ui" src="https://img.shields.io/badge/ui-streamlit-ff4b4b?logo=streamlit&logoColor=white">
+  <img alt="workflow" src="https://img.shields.io/badge/workflow-langgraph-8b5cf6">
+</p>
+
+<p align="center">
+  <a href="#local-setup">Local setup</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#review-guide">Review guide</a>
+</p>
 
 Streamlit + LangGraph prototype for an environment-controlled AI agent. The agent exposes its perception-reasoning-action-feedback loop, routes work through explicit tools, and requires human approval before sensitive actions such as sending email.
 
@@ -35,6 +49,12 @@ If you are scanning this repository, the most relevant implementation areas are:
 - `.env.example`: local configuration surface for OpenAI, Tavily, Gmail, and model selection.
 - `tests/test_agent_smoke.py`: smoke tests for safe local behavior that does not require API keys.
 - `DEPLOYMENT.md`: Streamlit Cloud deployment and secret-configuration notes.
+
+## Architecture
+
+<p align="center">
+  <img src="assets/architecture.svg" alt="Human-in-the-Loop Agent Control Plane architecture" width="100%">
+</p>
 
 ## Core Workflow
 
