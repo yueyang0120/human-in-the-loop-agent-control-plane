@@ -1,3 +1,5 @@
+# Human-in-the-Loop Agent Control Plane
+
 <p align="center">
   <img src="assets/readme-banner.svg" alt="Human-in-the-Loop Agent Control Plane" width="100%">
 </p>
@@ -26,7 +28,6 @@ This project is a proof of concept for building AI agents that are useful but no
 | Agent workflow | LangGraph state machine with perception, reasoning, action, feedback, and confirmation nodes. |
 | Tooling | Python execution, Tavily web search, Gmail draft/send flow, and Streamlit UI. |
 | Control model | Human-in-the-loop approval for sensitive tools, including modification before execution. |
-| FDE relevance | Shows how to turn ambiguous automation needs into a controlled, customer-facing agent workflow. |
 
 ## Why This Project
 
@@ -52,9 +53,25 @@ If you are scanning this repository, the most relevant implementation areas are:
 
 ## Architecture
 
-<p align="center">
-  <img src="assets/architecture.svg" alt="Human-in-the-Loop Agent Control Plane architecture" width="100%">
-</p>
+```mermaid
+flowchart TD
+  UI["Streamlit UI · app.py"] --> P["Perception"]
+  P --> R["Reasoning · choose tool"]
+  R --> G{"Sensitive tool?"}
+  G -->|no| X["Execute tool"]
+  G -->|yes| H["Review draft · approve / edit / cancel"]
+  H -->|approve| X
+  H -->|cancel| F["Feedback"]
+  X --> F
+  F --> C{"Goal met or iteration limit?"}
+  C -->|no| P
+  C -->|yes| O["Result + execution trace"]
+  X -.-> T["Python · Tavily · Gmail SMTP"]
+  classDef gate fill:#ede9fe,stroke:#7c3aed,color:#2e1065;
+  classDef io fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e;
+  class G,H,C gate;
+  class UI,O,T io;
+```
 
 ## Core Workflow
 
@@ -112,7 +129,7 @@ streamlit run app.py
 Run smoke tests:
 
 ```bash
-pytest -q
+python -m pytest -q
 ```
 
 ## Configuration
@@ -133,8 +150,11 @@ For Streamlit Cloud, configure secrets in the app settings rather than committin
 └── .env.example          Local configuration template
 ```
 
-## Portfolio Positioning
 
-This is not intended to be a production agent runtime. Its value as a portfolio project is the control-plane pattern: a visible agent loop, tool-specific execution boundaries, and human approval for side-effecting actions.
+## Integration and extension
 
-For FDE-style work, the relevant takeaway is the ability to design customer-safe AI workflows where model reasoning, tool execution, user review, and operational constraints are explicit rather than implicit.
+Run the Streamlit UI for interactive approvals. For Python callers, `StructuredAgent.run_agent(query, max_iterations=10, timeout=120)` returns the workflow state. The graph's confirmation node uses terminal input; embedding it in an HTTP service requires replacing that interaction with a persisted approval/resume mechanism.
+
+Add a tool in `agent.py`, update its routing and confirmation configuration, and expose any required credentials through the environment. The UI has its own execution/approval orchestration in `app.py`; keep both paths consistent when extending the tool set.
+
+This is a single-process prototype. The constrained Python executor is not an isolation boundary, and the repository does not provide a durable job queue or multi-user approval service.
